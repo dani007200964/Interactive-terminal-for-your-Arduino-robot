@@ -21,10 +21,10 @@
 #define RED_LED_PIN 32
 
 // WiFi credentials.
-const char* ssid     = "DIGI-b4vC";
-const char* password = "vyFJ6mU8";
+const char* ssid     = "WIFI-SSID";
+const char* password = "WIFI-PASS";
 
-const char logo[] = 
+const char logo[] =
 
 "\r\n"
 "  ______      __             _       __\r\n"
@@ -100,7 +100,7 @@ void setup() {
   Serial.printf( "[ %5d ] Servo init... ", millis() );
   servo.attach( SERVO_PIN );
   printOK();
-  
+
   // LED init section
   Serial.printf( "[ %5d ] LED init... ", millis() );
   pinMode( RED_LED_PIN, OUTPUT );
@@ -110,7 +110,7 @@ void setup() {
   Serial.printf( "[ %5d ] Commander init... ", millis() );
   commander.attachTree( API_tree );
   commander.init();
-  
+
   shell.attachCommander( &commander );
   shell.overrideAbortKey( abortHandler );
   shell.attachLogo( logo );
@@ -134,9 +134,9 @@ void setup() {
     Serial.print( "." );
 
   }
-  
+
   server.begin();
-  
+
   printOK();
 
   Serial.println( "Connected!" );
@@ -144,7 +144,7 @@ void setup() {
   Serial.print( WiFi.localIP() );
   Serial.print( " at port: " );
   Serial.println( SERVER_PORT );
-  
+
   // Startup finished message.
   Serial.println( "Startup sequence finished!\r\n" );
 
@@ -187,21 +187,21 @@ void ledOff_func( char *args, commandResponse *response ){
 void ledState_func( char *args, commandResponse *response ){
 
   response -> print( "LED state: " );
-  
+
   if( digitalRead( RED_LED_PIN ) ){
 
     response -> println( "ON" );
-    
+
   }
 
   else{
 
     response -> println( "OFF" );
-    
+
   }
-  
+
   response -> println();
-  
+
 }
 
 void setServo_func( char *args, commandResponse *response ){
@@ -215,23 +215,23 @@ void setServo_func( char *args, commandResponse *response ){
 
     response -> println( "No argument. See help!" );
     return;
-    
+
   }
 
   if( servoPos < 0 ){
 
     servoPos = 0;
-    
+
   }
 
   if( servoPos > 180 ){
 
     servoPos = 180;
-    
+
   }
 
   servo.write( servoPos );
-  
+
 }
 
 void getServo_func( char *args, commandResponse *response ){
@@ -266,7 +266,7 @@ void wifiStat_func( char *args, commandResponse *response ){
   char localIP_cahr_arr[ 20 ];
 
   localIP.toCharArray( localIP_cahr_arr, 20 );
-  
+
   response -> print( "WiFi RSSI:\t" );
   response -> println( WiFi.RSSI() );
   response -> print( "IP address:\t" );
@@ -282,7 +282,7 @@ void wifiScanner_func( char *args, commandResponse *response ){
   int j;
   int j_old;
   char buff[ 32 ];
-  
+
   response -> println( "---- Press any key to abort ----" );
   response -> println( "Available WiFi networks:" );
 
@@ -297,7 +297,7 @@ void wifiScanner_func( char *args, commandResponse *response ){
       response -> print( i + 1 );
       response -> print( ' ' );
       response -> println( buff );
-      
+
     }
 
     j_old = j;
@@ -307,7 +307,7 @@ void wifiScanner_func( char *args, commandResponse *response ){
     if( response -> available() > 0 ){
 
       break;
-      
+
     }
 
     for( i = 0; i < j_old; i++ ){
@@ -315,17 +315,17 @@ void wifiScanner_func( char *args, commandResponse *response ){
       // Clear the line.
       response -> write( 27 );
       response -> print( (const char*)"[2K" );
-      
+
       // Move up the cursor.
       response -> write( 27 );
       response -> print( (const char*)"[A" );
-      
-    }    
-    
+
+    }
+
   }
 
   response -> println( "Scan finished." );
-  
+
 }
 
 void reboot_func( char *args, commandResponse *response ){
@@ -350,7 +350,7 @@ void abortHandler(){
 
   Serial.println();
   Serial.println( "Abort key pressed!" );
-  
+
 }
 
 void joggingUpEvent(){
@@ -364,15 +364,15 @@ void joggingUpEvent(){
   if( servoPos > 180 ){
 
     servoPos = 180;
-    
+
   }
 
   servo.write( servoPos );
-  
+
 }
 
 void joggingDownEvent(){
-  
+
   int servoPos;
 
   servoPos = servo.read();
@@ -382,11 +382,11 @@ void joggingDownEvent(){
   if( servoPos < 0 ){
 
     servoPos = 0;
-    
+
   }
 
   servo.write( servoPos );
- 
+
 }
 
 void terminalClientTask( void * parameter ){
@@ -394,23 +394,23 @@ void terminalClientTask( void * parameter ){
   for( ;; ){
 
     client = server.available();
-  
+
     if( client ){
 
       shellWiFi.clear();
       shellWiFi.begin( "WiFi" );
 
       while( client.connected() ){
-  
+
           shellWiFi.update();
           vTaskDelay( 10 );
-  
+
       }
-      
+
     }
 
     vTaskDelay( 10 );
-    
+
   }
-  
+
 }
